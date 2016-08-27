@@ -4,9 +4,10 @@ let rootUrl = 'https://testfirebase-50970.firebaseio.com/',
 usersRef= new Firebase(rootUrl + 'users'),
 userObjectsRef = new Firebase(rootUrl + 'userObjects'),
 timelineRef = new Firebase(userObjectsRef + 'timeline'),
+tweetRef = new Firebase(userObjectsRef + 'tweet'),
 userHandler,
-timelineHandler;
-
+timelineHandler,
+activeUser;
 
 $(document).ready(init);
 
@@ -14,12 +15,17 @@ function init() {
   $('#add').click(addMessage);
   // $("#start").click(start);
   // $("#logout").click(logout);
-
-  // chatRef.on('child_added', function(snapshot){
-  //   var value = snapshot.val();
-  //   var $li = $('<li>').text(value.time + ' ' + value.name + ' ' + value.message);
+  //
+  // tweetRef.on('child_added', (snapshot) => {
+  //   var newTweet = snapshot.val();
+  //   var $li = $('<li>').text(newTweet.created + ' ' +  + ' '+ newTweet.message);
   //   $('#output').append($li);
   // });
+
+  userObjectsRef.child('tweets').on('value', (snap) => {
+    tweetObjs = snap.val();
+    activeUser = tweetObjs[0];
+  });
 
   usersRef.on('value', (snapshot) => {
     $('#users').empty();
@@ -39,17 +45,32 @@ function addMessage(e){
     text: $('#message').val(),
     created: (new Date()).toString()
   };
+
   $('#message').val('');
 
   let tweetObjs;
   userObjectsRef.child('tweets').on('value', (snap) => {
     tweetObjs = snap.val();
+    activeUser = tweetObjs[0];
 
+    userObjectsRef.child('tweets').child(activeUser).push(tweet, (err) => {
+      
+    });
   });
 
   // tweetObjs.once('value', (snapshot) => snapshot.val());
-  console.log('tweetObjs: ', tweetObjs);
 };
+
+
+
+
+
+
+
+
+
+
+
 // let rootUrl = 'https://testfirebase-50970.firebaseio.com/',
 //     usersRef= new Firebase(rootUrl + 'users'),
 //     userObjectsRef = new Firebase(rootUrl + 'userObjects'),
@@ -96,7 +117,6 @@ function addMessage(e){
 //   }
 // });
 
-
 // userObjectsRef.child('following').once('value', (snapshot) => {  // show users in following.
 //   let users = snapshot.val();
 //
@@ -105,7 +125,6 @@ function addMessage(e){
 //     console.log('User: ', userKey, '\nfollowers: ', followerObj);
 //   }
 // });
-
 
 // in order to remember the firebase key of an object, we need to make a new
 // property on that object with key attached. This code below can help and returns
@@ -160,7 +179,6 @@ function addMessage(e){
 //     });
 //   }
 // }
-
 
 // function logout(){
 //   usersRef.once('value', function(snapshot){
