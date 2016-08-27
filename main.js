@@ -2,52 +2,55 @@
 'use strict';
 
 
-let rootUrl = 'https://testfirebase-50970.firebaseio.com/';
-let usersRef= new Firebase(rootUrl + 'users');
-let userObjects = new Firebase(rootUrl + 'userObjects');
+let rootUrl = 'https://testfirebase-50970.firebaseio.com/',
+    usersRef= new Firebase(rootUrl + 'users'),
+    userObjectsRef = new Firebase(rootUrl + 'userObjects'),
+    timelineRef = new Firebase(userObjectsRef + 'timeline'),
+    userHandler,
+    timelineHandler;
 
-let fbUsers;
-usersRef.once('value', (snapshot) => {
-  console.log('ONCE: ', snapshot.val());
-  fbUsers = snapshot.val();
-  // let usersArr = [];
-  // for (let key in users) {
-  //   usersArr.push(key);
-  // }
-  // let userRef = usersRef.child(usersArr[0]);
-  //
-  //
-  //
-  // userRef.on('value', (snapshot) => {
-  //   console.log('user 1 info: ', snapshot.val());
-  // })
-  let count = 0,
-  userRef,
-  followers,
-  tweets;
-  for (let key in fbUsers) {
-    count++;
-    followers = [];
-    tweets = [];
-    userRef = usersRef.child(key)
+// let fbUsers;
+// usersRef.once('value', (snapshot) => {
+//   console.log('ONCE: ', snapshot.val());
+//   fbUsers = snapshot.val();
+// let usersArr = [];
+// for (let key in users) {
+//   usersArr.push(key);
+// }
+// let userRef = usersRef.child(usersArr[0]);
+//
+//
+//
+// userRef.on('value', (snapshot) => {
+//   console.log('user 1 info: ', snapshot.val());
+// })
+//   let count = 0,
+//   userRef,
+//   followers,
+//   tweets;
+//   for (let key in fbUsers) {
+//     count++;
+//     followers = [];
+//     tweets = [];
+//     userRef = usersRef.child(key)
+//
+//     userRef.on('value', (snapshot) => {
+//       let data = snapshot.val();
+//       followers = Object.keys(data.following);
+//       tweets = Object.keys(data.tweets);
+//
+//       followers.forEach((userId, i) => {
+//         usersRef.child(userId).once('value', (snapshot) => {
+//           console.log('THIS USER: ', key);
+//           console.log(`User ${userId}: `, snapshot.val());
+//         });
+//       });
+//     });
+//   }
+// });
 
-    userRef.on('value', (snapshot) => {
-      let data = snapshot.val();
-      followers = Object.keys(data.following);
-      tweets = Object.keys(data.tweets);
 
-      followers.forEach((userId, i) => {
-        usersRef.child(userId).once('value', (snapshot) => {
-          console.log('THIS USER: ', key);
-          console.log(`User ${userId}: `, snapshot.val());
-        });
-      });
-    });
-  }
-});
-
-
-userObjects.child('following').once('value', (snapshot) => {  // show users in following.
+userObjectsRef.child('following').once('value', (snapshot) => {  // show users in following.
   let users = snapshot.val();
 
   for (let userKey in users) {
@@ -57,22 +60,59 @@ userObjects.child('following').once('value', (snapshot) => {  // show users in f
 });
 
 
-// in order to record an object, and attach it's firebase key, we need to make a new
-// property on that object with the key's value. This code below can help.
+// in order to remember the firebase key of an object, we need to make a new
+// property on that object with key attached. This code below can help and returns
+// an array of objects with that added property.
 let flatten = objects => {
-  let keys = Object.keys(objects),
-  i = keys.length,
-  result = [],
-  tweet;
-
-  while(i--) {
-    tweet = objects[keys[i]];
-    tweet.key = keys[i];
-    results.unshift;
-  }
-  return result;
+  // let keys = Object.keys(objects),
+  // i = keys.length,
+  // result = [],
+  // tweet;
+  //
+  // while(i--) {
+  //   tweet = objects[keys[i]];
+  //   tweet.key = keys[i];
+  //   results.push(tweet);
+  // }
+  // return results;
+  let tweet;
+  let results = Object.keys(objects).map((key) => {
+    tweet = objects[key];
+    tweet.key = key;
+    return tweet;
+  });
+  return results
 };
 
+function stopListening() {
+  if (typeof timelineRef === 'object' && typeof timelineHandler) {
+    timelineRef.off('value', timelineHandler);
+  }
+  if (typeof userRef === 'object' && typeof userHandler) {
+    userRef.off('value', userHandler);
+  }  
+}
+
+
+let userChange = (e) => {  // when a different user is selected.
+  let userKey = e.target.value;
+
+  if (userKey) {
+    // gives an object of nested objects, with the first object being a firebase key,
+    // that have a nested tweet and it's details as it's value.
+    let timelineRef = userObjectsRef.child('timeline').child(userKey);
+    // encapsulate the .on() instance so that we turn it off and re-assign it later.
+    timelineHandler = timlineRef.on('value', (snap) => {
+      // this will eventually look like an array of objects, with the firebase key as an added property.
+      let data = flatten(snap.val());
+    });
+
+    let userRef = usersRef.child(userKey);
+    userHandler = userRef.on('value', (snap) => {
+      let fbUser = snap.val();
+    });
+  }
+}
 
 
 
