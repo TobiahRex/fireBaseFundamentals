@@ -5,6 +5,11 @@
   <title>Firebase</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="main.js"></script>
 </head>
 <body>
   <div class="container">
@@ -19,21 +24,20 @@
 
     <div class='newMessage'>
       <label>Message:</label>
-      <textarea rows='8' cols='20' type="text" id="message" />
+      <input id="message"/>
       <button id="add">Add</button>
     </div>
 
     <div class="col-xs-8">
+      <h1>Messages</h1>
       <ul id="output"></ul>
     </div>
     <div class="col-xs-4">
+      <h1>Users</h1>
       <ul id="users"></ul>
     </div>
   </div>
 
-  <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="main.js"></script>
+
 </body>
 </html>

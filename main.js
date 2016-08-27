@@ -1,7 +1,55 @@
 // https://testfirebase-50970.firebaseio.com/
 'use strict';
+let rootUrl = 'https://testfirebase-50970.firebaseio.com/',
+usersRef= new Firebase(rootUrl + 'users'),
+userObjectsRef = new Firebase(rootUrl + 'userObjects'),
+timelineRef = new Firebase(userObjectsRef + 'timeline'),
+userHandler,
+timelineHandler;
 
 
+$(document).ready(init);
+
+function init() {
+  $('#add').click(addMessage);
+  // $("#start").click(start);
+  // $("#logout").click(logout);
+
+  // chatRef.on('child_added', function(snapshot){
+  //   var value = snapshot.val();
+  //   var $li = $('<li>').text(value.time + ' ' + value.name + ' ' + value.message);
+  //   $('#output').append($li);
+  // });
+
+  usersRef.on('value', (snapshot) => {
+    $('#users').empty();
+    let fbUserObjs = snapshot.val();
+    let $users = Object.keys(fbUserObjs).map(userKey => {
+      let user = fbUserObjs[userKey];
+      user.key = userKey;
+      return $(`<li id=${user.key}>`).text(user.name);
+    });
+    $('#users').append($users);
+  });
+}
+
+
+function addMessage(e){
+  let tweet = {
+    text: $('#message').val(),
+    created: (new Date()).toString()
+  };
+  $('#message').val('');
+
+  let tweetObjs;
+  userObjectsRef.child('tweets').on('value', (snap) => {
+    tweetObjs = snap.val();
+
+  });
+
+  // tweetObjs.once('value', (snapshot) => snapshot.val());
+  console.log('tweetObjs: ', tweetObjs);
+};
 // let rootUrl = 'https://testfirebase-50970.firebaseio.com/',
 //     usersRef= new Firebase(rootUrl + 'users'),
 //     userObjectsRef = new Firebase(rootUrl + 'userObjects'),
@@ -113,61 +161,6 @@
 //   }
 // }
 
-
-let rootUrl = 'https://testfirebase-50970.firebaseio.com/',
-    usersRef= new Firebase(rootUrl + 'users'),
-    userObjectsRef = new Firebase(rootUrl + 'userObjects'),
-    timelineRef = new Firebase(userObjectsRef + 'timeline'),
-    userHandler,
-    timelineHandler;
-
-$(document).ready(init);
-
-function init() {
-  $('#add').click(addMessage);
-  $("#start").click(start);
-  $("#logout").click(logout);
-
-  $(window).on('beforeunload', logout)
-
-  // chatRef.on('child_added', function(snapshot){
-  //   var value = snapshot.val();
-  //   var $li = $('<li>').text(value.time + ' ' + value.name + ' ' + value.message);
-  //   $('#output').append($li);
-  // });
-
-  usersRef.on('value', function(snapshot){
-    $('#users').empty();
-
-    var users = snapshot.val();
-
-    var $lis = [];
-
-    for(var key in users){
-      var $li = $('<li>').text(users[key]);
-      $lis.push($li);
-    }
-    $('#users').append($lis);
-  });
-}
-
-function addMessage(e){
-  e.prevent.default();
-  let tweet = {
-    text: $('#message').val(),
-    created: (new Date()).toString()
-  };
-
-  let tweetObjs = userObjectsRef.child('tweets').once('value', (snapshot) => snapshot.val());
-
-  // var message = $("#message").val();
-  // $("#message").val('');
-  // chatRef.push({
-  //   name: name,
-  //   time: Date.now(),
-  //   message: message
-  // });
-}
 
 // function logout(){
 //   usersRef.once('value', function(snapshot){
